@@ -26,8 +26,12 @@ router.post('/login', async (req, res) => {
 });
 
 router.post('/logout', async (req, res) => {
-    res.clearCookie('t');
-    res.json({ message: 'User signout successful' });
+    try {
+	res.clearCookie('t');
+	res.json({ message: 'User signout successful' });
+    } catch(error) {
+        res.status(500).json({ error: error.toString() });
+    }
 });
 
 

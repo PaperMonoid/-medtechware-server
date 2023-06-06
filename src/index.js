@@ -30,6 +30,13 @@ const server = app.listen(process.env.PORT, () => {
     console.log(
 	`Example app listening on port ${process.env.PORT}`
     );
+    const http = require('http');
+
+    http.get({'host': 'api.ipify.org', 'port': 80, 'path': '/'}, function(resp) {
+	resp.on('data', function(ip) {
+	    console.log("My public IP address is: " + ip);
+	});
+    });
     connectDB();
 });
 
