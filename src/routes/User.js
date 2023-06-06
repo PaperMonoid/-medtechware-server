@@ -8,7 +8,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 router.post('/register', async (req, res) => {
     const user = await UserService.createUser(req.body);
-    const token = jwt.sign({ "_id": user._id }, JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ "_id": user._id, "isAdmin": user.isAdmin }, JWT_SECRET, { expiresIn: '7d' });
     res.cookie('t', token, { expire: new Date() + 9999 });
     res.status(200).json({ token });
 });

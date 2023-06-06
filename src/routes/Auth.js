@@ -16,7 +16,7 @@ router.post('/login', async (req, res) => {
             return res.status(401).json({ error: 'Invalid username or password.' });
         }
 
-        const token = jwt.sign({ "_id": user._id }, JWT_SECRET, { expiresIn: '7d' });
+        const token = jwt.sign({ "_id": user._id, 'isAdmin': user.isAdmin }, JWT_SECRET, { expiresIn: '7d' });
         res.cookie('t', token, { expire: new Date() + 9999 });
         return res.json({ token });
 

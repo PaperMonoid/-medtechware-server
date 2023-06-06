@@ -1,8 +1,18 @@
 const express = require('express');
 const ShoppingCartService = require('../services/ShoppingCartService.js');
 const router = express.Router();
+const { expressjwt } = require("express-jwt");
 
-router.post('/cart', async (req, res) => {
+const JWT_SECRET = process.env.JWT_SECRET;
+
+const jwtMiddleWare = expressjwt({ secret: JWT_SECRET, algorithms: ["HS256"] });
+const authMiddleware = (req, res, next) => {
+    const auth = req.auth;
+    if (auth)
+	req.body.userId = req.auth.userId;
+};
+
+router.post('/', async (req, res) => {
     try {
         const userId = req.body.userId;
         const cart = await ShoppingCartService.createCart(userId);
@@ -12,7 +22,7 @@ router.post('/cart', async (req, res) => {
     }
 });
 
-router.get('/cart/:userId', async (req, res) => {
+router.get('/:userId', async (req, res) => {
     try {
         const cart = await ShoppingCartService.getCart(req.params.userId);
         res.json(cart);
@@ -21,9 +31,15 @@ router.get('/cart/:userId', async (req, res) => {
     }
 });
 
-router.post('/cart/add', async (req, res) => {
+router.post('/add', jwtMiddleWare, authMiddleware, async (req, res) => {
     try {
         const { userId, productId, quantity } = req.body;
+
+	const cart = await ShoppingCartService.getCart(userId);
+	if (!cart) {
+	    await ShoppingCartService.createCart(userId);
+	}
+
         const updatedCart = await ShoppingCartService.addToCart(userId, productId, quantity);
         res.json(updatedCart);
     } catch (error) {
@@ -31,7 +47,7 @@ router.post('/cart/add', async (req, res) => {
     }
 });
 
-router.post('/cart/remove', async (req, res) => {
+router.post('/remove', async (req, res) => {
     try {
         const { userId, productId } = req.body;
         const updatedCart = await ShoppingCartService.removeFromCart(userId, productId);
@@ -41,7 +57,7 @@ router.post('/cart/remove', async (req, res) => {
     }
 });
 
-router.post('/cart/update', async (req, res) => {
+router.post('/update', async (req, res) => {
     try {
         const { userId, productId, quantity } = req.body;
         const updatedCart = await ShoppingCartService.updateCart(userId, productId, quantity);
@@ -51,7 +67,7 @@ router.post('/cart/update', async (req, res) => {
     }
 });
 
-router.post('/cart/clear', async (req, res) => {
+router.post('/clear', async (req, res) => {
     try {
         const userId = req.body.userId;
         const updatedCart = await ShoppingCartService.clearCart(userId);

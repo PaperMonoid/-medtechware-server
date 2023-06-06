@@ -1,4 +1,4 @@
-const { Product } = require('../models/Product.js');
+const Product = require('../models/Product.js');
 
 const productService = {
     createProduct: async function(data) {
@@ -27,6 +27,19 @@ const productService = {
 	} catch (error) {
 	    throw error;
 	}
+    },
+
+    searchProducts: async function(keywords) {
+        const maxKeywords = 6;
+        const splitKeywords = keywords.split(" ").slice(0, maxKeywords);
+        try {
+            const products = await Product.find({
+                keywords: { $in: splitKeywords }
+            });
+            return products;
+        } catch (error) {
+            throw error;
+        }
     },
 
     updateProduct: async function(id, data) {
